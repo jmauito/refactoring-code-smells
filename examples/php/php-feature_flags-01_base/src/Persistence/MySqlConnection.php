@@ -9,25 +9,19 @@ use CodelyTv\Flags;
 
 final class MySqlConnection
 {
-    private static ?MySqlConnection $instance = null;
 
-    private function __construct()
-    {
-    }
+    private FeatureFlags $featureFlags;
 
-    public static function instance(): MySqlConnection
+    public function __construct(FeatureFlags $featureFlags)
     {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
+        $this->featureFlags = $featureFlags;
     }
 
     public function persist(string $email, ?string $name = null): void
     {
         $subscription = ['email' => $email];
 
-        $flag = FeatureFlags::instance()->get(Flags::NEW_SUBSCRIPTION_PAGE_NAME);
+        $flag = $this->featureFlags->get(Flags::NEW_SUBSCRIPTION_PAGE_NAME);
         if ($flag) {
             $subscription['name'] = $name;
         }

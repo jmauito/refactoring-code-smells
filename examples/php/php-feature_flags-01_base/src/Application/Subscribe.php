@@ -12,21 +12,27 @@ use CodelyTv\Persistence\MySqlConnection;
 
 final class Subscribe
 {
+    
+    private FeatureFlags $featureFlags;
+
+    public function __construct(FeatureFlags $featureFlags)
+    {
+        $this->featureFlags = $featureFlags;
+    }
+
     public function __invoke(string $email, ?string $name = null): void
     {
-        if (Debug::instance()->isDebugModeEnabled()) {
-            FeatureFlags::instance()->deactivateAll();
-        }
-
-        $flag = FeatureFlags::instance()->get(Flags::NEW_SUBSCRIPTION_PAGE_NAME);
-
-        if ($flag) {
+        $mySqlConnection = new MySqlConnection($this->featureFlags);
+        
+        $flag = $this->featureFlags->get(Flags::NEW_SUBSCRIPTION_PAGE_NAME);
+        if ($flag and !Debug::instance()->isDebugModeEnabled()) {
             // The new subscription added a "name" field
-            MySqlConnection::instance()->persist($email, $name);
+            $mySqlConnection->persist($email, $name);
         } else {
-            MySqlConnection::instance()->persist($email);
+            $mySqlConnection->persist($email);
         }
 
-        EmailNotifier::instance()->sendSubscriptionEmail($email);
+        $emailNotifier = new EmailNotifier($this->featureFlags);
+        $emailNotifier->sendSubscriptionEmail($email);
     }
 }

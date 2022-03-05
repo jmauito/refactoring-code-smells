@@ -6,30 +6,11 @@ namespace CodelyTv;
 
 final class FeatureFlags
 {
-    private static ?FeatureFlags $instance = null;
-
     private array $flags = [];
 
-    private function __construct()
+    public function __construct($flags = [])
     {
-    }
-
-    public static function instance(): FeatureFlags
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    public function set(string $flagName, bool $flagValue)
-    {
-        $this->flags[$flagName] = $flagValue;
-    }
-
-    public function activate(string $flagName): void
-    {
-        $this->set($flagName, true);
+        $this->flags = $flags;
     }
 
     public function get(string $flagName): bool
@@ -41,10 +22,4 @@ final class FeatureFlags
         return $this->flags[$flagName];
     }
 
-    public function deactivateAll(): void
-    {
-        foreach ($this->flags as $name => $value) {
-            $this->flags[$name] = false;
-        }
-    }
 }

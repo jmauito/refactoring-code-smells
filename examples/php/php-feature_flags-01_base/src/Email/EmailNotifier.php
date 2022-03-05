@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace CodelyTv\Email;
 
+use CodelyTv\Email\SubscriptionEmail as EmailSubscriptionEmail;
+use CodelyTv\FeatureFlags;
+
 final class EmailNotifier
 {
-    private static ?EmailNotifier $instance = null;
+    private FeatureFlags $featureFlags;
 
-    private function __construct()
+    public function __construct(FeatureFlags $featureFlags)
     {
+        $this->featureFlags = $featureFlags;
     }
-
-    public static function instance(): EmailNotifier
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
+    
     public function sendSubscriptionEmail(string $to)
     {
         echo "Email sent to $to";
-        require __DIR__ . '/subscription-email.php';
+        $subscriptionEmail = new EmailSubscriptionEmail($this->featureFlags);
+        $subscriptionEmail->__invoke();
     }
 }

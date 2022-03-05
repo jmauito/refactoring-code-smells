@@ -12,12 +12,13 @@ final class SubscribeController
     public function __invoke(Request $request)
     {
         $flagHeader = $request->headers->get('X-FLAG');
-
+        $flags = [];
         if ($flagHeader === Flags::NEW_SUBSCRIPTION_PAGE_TOKEN) {
-            FeatureFlags::instance()->set('new_subscription_page', true);
+            $flags = ['new_subscription_page' => true];
         }
-
-        $subscribeUseCase = new Subscribe();
+        $featureFlags = new FeatureFlags($flags);
+        
+        $subscribeUseCase = new Subscribe($featureFlags);
         $subscribeUseCase->__invoke(
             $request->request->get('email'),
             $request->request->get('name'),

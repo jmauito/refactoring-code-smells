@@ -8,7 +8,7 @@ final class Debug
 {
     private static ?Debug $instance = null;
 
-    private bool $debugMode = false;
+    private bool $debugMode = true;
 
     private function __construct()
     {
